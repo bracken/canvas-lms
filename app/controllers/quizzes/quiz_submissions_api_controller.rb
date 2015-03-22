@@ -150,7 +150,7 @@ class Quizzes::QuizSubmissionsApiController < ApplicationController
   #
   # Get a list of all submissions for this quiz.
   #
-  # @argument include[] [String, "submission"|"quiz"|"user"]
+  # @argument include[] [String, "submission"|"quiz"|"user"|"assessed_learning_outcome_ids"]
   #   Associations to include with the quiz submission.
   #
   # <b>200 OK</b> response code is returned if the request was successful.
@@ -182,7 +182,7 @@ class Quizzes::QuizSubmissionsApiController < ApplicationController
   #
   # Get a single quiz submission.
   #
-  # @argument include[] [String, "submission"|"quiz"|"user"]
+  # @argument include[] [String, "submission"|"quiz"|"user"|"assessed_learning_outcome_ids"]
   #   Associations to include with the quiz submission.
   #
   # <b>200 OK</b> response code is returned if the request was successful.

@@ -76,6 +76,25 @@ class Quizzes::QuizGroupsController < ApplicationController
 
   before_filter :require_context, :require_quiz
 
+  # @API List of question group
+  # @beta
+  #
+  # @argument include[] [String, "aligned_learning_outcome_ids"]
+  #   Associations to include with the quiz group.
+  #
+  # @example_response
+  #  {
+  #    "quiz_groups": [QuizGroup]
+  #  }
+  def index
+    if authorized_action(@quiz, @current_user, :update)
+      includes = Set.new(Array(params[:include]))
+      @groups = Api.paginate(@quiz.quiz_groups, self, api_v1_course_quiz_groups_url(@context, @quiz))
+
+      render json: quiz_groups_json(@groups, @context, @current_user, session, includes)
+    end
+  end
+
   # @API Create a question group
   # @beta
   #

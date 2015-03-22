@@ -27,6 +27,49 @@ describe Quizzes::QuizGroupsController, type: :request do
     @bank = @course.assessment_question_banks.create! :title => 'Test Bank'
   end
 
+  describe "GET /api/v1/courses/:course_id/quizzes/:quiz_id/groups (index)" do
+    before :once do
+      @group = @quiz.quiz_groups.create :name => 'Test Group'
+    end
+
+    def api_get_quiz_groups(opts={})
+      api_call(:get, "/api/v1/courses/#{@course.id}/quizzes/#{@quiz.id}/groups",
+               {:controller => "quizzes/quiz_groups", :action => "index", :format => "json", :course_id => "#{@course.id}", :quiz_id => "#{@quiz.id}"}.merge(opts),
+               {},
+               {'Accept' => 'application/vnd.api+json'})
+    end
+
+    it "returns the quiz groups for the quiz" do
+      json = api_get_quiz_groups
+      expect(json[0]['id']).to eq @group.id
+    end
+
+    it "should include aligned_learning_outcome_ids" do
+      @outcome = @course.created_learning_outcomes.create!(:title => 'outcome')
+      @outcome.align(@bank, @bank.context, :mastery_score => 0.7)
+      @group.assessment_question_bank_id = @bank.id
+      @group.save!
+      @group2 = @quiz.quiz_groups.create :name => 'Test Group2'
+
+      json = api_get_quiz_groups(include: 'aligned_learning_outcome_ids')
+      expect(json[0]['aligned_learning_outcome_ids']).to eq [@outcome.id]
+      expect(json[1]['aligned_learning_outcome_ids']).to eq []
+    end
+
+    it "paginates" do
+      @group2 = @quiz.quiz_groups.create :name => 'Test Group2'
+
+      json = api_get_quiz_groups(per_page: 1)
+      expect(json.length).to eq 1
+      first_id = json[0]['id']
+
+      json = api_get_quiz_groups(page: 2, per_page: 1)
+      expect(json.length).to eq 1
+      expect(json[0]['id']).not_to eq first_id
+    end
+
+  end
+
   describe "POST /api/v1/courses/:course_id/quizzes/:quiz_id/groups (create)" do
 
     def api_create_quiz_group(quiz_group_params, opts={})

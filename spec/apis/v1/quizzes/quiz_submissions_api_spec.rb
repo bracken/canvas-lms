@@ -180,6 +180,19 @@ describe Quizzes::QuizSubmissionsApiController, type: :request do
       json = qs_api_index(true)
       assert_status(401)
     end
+
+    it "should include assessed_learning_outcome_ids" do
+      @outcome = @course.created_learning_outcomes.create!(:title => 'outcome')
+      @bank = @course.assessment_question_banks.create! title: 'Test Bank'
+      @outcome.align(@bank, @bank.context, :mastery_score => 0.7)
+      @group = @quiz.quiz_groups.create! name: 'Test Group', assessment_question_bank_id: @bank.id
+
+      json = qs_api_index(false, {:include => ['assessed_learning_outcome_ids']})
+
+      expect(json.has_key?('assessed_learning_outcome_ids')).to be_truthy
+      expect(json['assessed_learning_outcome_ids'].size).to eq 1
+      expect(json['assessed_learning_outcome_ids'][0]).to eq @outcome.id
+    end
   end
 
   describe 'GET /courses/:course_id/quizzes/:quiz_id/submissions/:id [SHOW]' do

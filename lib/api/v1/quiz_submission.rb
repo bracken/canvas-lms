@@ -104,6 +104,13 @@ module Api::V1::QuizSubmission
       end
     end
 
+    if includes.include?('assessed_learning_outcome_ids')
+      hash[:assessed_learning_outcome_ids] =  ContentTag.where( content_type: 'AssessmentQuestionBank',
+                                                                tag_type: 'learning_outcome',
+                                                                content_id: quiz.quiz_groups.select(:assessment_question_bank_id)
+                                                              ).pluck(:learning_outcome_id)
+    end
+
     unless includes.empty?
       hash[:meta] = {
         primaryCollection: 'quiz_submissions'

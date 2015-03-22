@@ -45,14 +45,22 @@ module Api::V1::QuizGroup
     { quiz_groups: quiz_groups_json(quiz_groups, context, user, session) }
   end
 
-  def quiz_groups_json(quiz_groups, context, user, session)
+  def quiz_groups_json(quiz_groups, context, user, session, includes=[])
     quiz_groups.map do |quiz_group|
-      quiz_group_json(quiz_group, context, user, session)
+      quiz_group_json(quiz_group, context, user, session, includes)
     end
   end
 
-  def quiz_group_json(quiz_group, context, user, session)
-    api_json(quiz_group, user, session, API_ALLOWED_QUIZ_GROUP_OUTPUT_FIELDS)
+  def quiz_group_json(quiz_group, context, user, session, includes=[])
+    api_json(quiz_group, user, session, API_ALLOWED_QUIZ_GROUP_OUTPUT_FIELDS).tap do |json|
+      if includes.include?('aligned_learning_outcome_ids')
+        if quiz_group.assessment_question_bank_id
+          json['aligned_learning_outcome_ids'] = quiz_group.assessment_question_bank.learning_outcome_alignments.select(:learning_outcome_id).pluck(:learning_outcome_id)
+        else
+          json['aligned_learning_outcome_ids'] = []
+        end
+      end
+    end
   end
 
   def filter_params(quiz_group_params)
