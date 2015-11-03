@@ -169,6 +169,12 @@ window.addEventListener('message', function(e) {
         }
         break;
 
+      case 'lti.scrollToTop'
+        $('html,body').animate({
+           scrollTop: $('.tool_content_wrapper').offset().top
+         }, 'slow');
+        break;
+
       case 'lti.setUnloadMessage':
         setUnloadMessage(message.message);
         break;
