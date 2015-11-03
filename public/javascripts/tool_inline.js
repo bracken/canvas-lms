@@ -97,6 +97,24 @@ var resize_tool_content_wrapper = function(height) {
   tool_content_wrapper().height(tool_height > height ? tool_height : height);
 }
 
+//moduleSequenceFooter visibility handler
+function module_sequence_footer(){
+  if (ENV.use_new_styles) {
+    return $('.module-sequence-footer');
+  }
+  else {
+    return $('#sequence_footer');
+  }
+}
+
+function set_sequence_footer_visibility(show){
+  if (show){
+    module_sequence_footer().show();
+  } else {
+    module_sequence_footer().hide();
+  }
+}
+
 $(function() {
   var $window = $(window);
   $tool_content_wrapper = $('.tool_content_wrapper');
@@ -143,6 +161,12 @@ window.addEventListener('message', function(e) {
 
         tool_content_wrapper().data('height_overridden', true);
         resize_tool_content_wrapper(height);
+        break;
+
+      case 'lti.showModuleNavigation'
+        if(message.show === true || message.show === false){
+          set_sequence_footer_visibility(message.show);
+        }
         break;
 
       case 'lti.setUnloadMessage':
